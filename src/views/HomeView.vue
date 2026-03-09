@@ -36,26 +36,27 @@
 
     <!-- Carousel Banner -->
     <div class="carousel-section">
-      <div class="carousel-wrapper">
+      <div class="carousel-container">
         <button class="carousel-arrow carousel-prev" @click="prevSlide" aria-label="前へ">&#9664;</button>
-        <div class="carousel-track">
-          <a
-            v-for="(b, i) in carouselBanners"
-            :key="b.id"
-            :href="b.url"
-            target="_blank"
-            rel="noopener"
-            class="carousel-slide"
-            :class="{ active: i === carouselIndex }"
-            :style="{ background: b.gradient }"
-          >
-            <span class="carousel-icon">{{ b.icon }}</span>
-            <div class="carousel-text">
-              <div class="carousel-title">{{ b.title }}</div>
-              <div class="carousel-sub">{{ b.sub }}</div>
-            </div>
-            <span v-if="b.badge" class="carousel-badge">{{ b.badge }}</span>
-          </a>
+        <div class="carousel-outer">
+          <div class="carousel-track" :style="{ transform: `translateX(calc(${carouselIndex} * -100% / 6))` }">
+            <a
+              v-for="b in carouselBanners"
+              :key="b.id"
+              :href="b.url"
+              target="_blank"
+              rel="noopener"
+              class="carousel-slide"
+              :style="{ background: b.gradient }"
+            >
+              <span class="carousel-icon">{{ b.icon }}</span>
+              <div class="carousel-text">
+                <div class="carousel-title">{{ b.title }}</div>
+                <div class="carousel-sub">{{ b.sub }}</div>
+              </div>
+              <span v-if="b.badge" class="carousel-badge">{{ b.badge }}</span>
+            </a>
+          </div>
         </div>
         <button class="carousel-arrow carousel-next" @click="nextSlide" aria-label="次へ">&#9654;</button>
       </div>
@@ -551,46 +552,48 @@ onUnmounted(() => {
 /* Carousel */
 .carousel-section {
   background: #0a0a0f;
-  padding: 0;
+  padding: 10px 0 6px;
   user-select: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
 
-.carousel-wrapper {
-  position: relative;
+.carousel-container {
   display: flex;
   align-items: center;
-  height: 113px;
+  gap: 6px;
+}
+
+.carousel-outer {
+  width: min(600px, calc(100vw - 80px));
+  height: 56px;
+  overflow: hidden;
+  border-radius: 8px;
 }
 
 .carousel-track {
-  flex: 1;
-  position: relative;
-  height: 100%;
-  overflow: hidden;
+  display: flex;
+  width: 600%;
+  height: 56px;
+  transition: transform 0.4s ease;
 }
 
 .carousel-slide {
-  position: absolute;
-  inset: 0;
+  width: calc(100% / 6);
+  height: 56px;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 0 28px;
+  gap: 12px;
+  padding: 0 16px;
   text-decoration: none;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-  pointer-events: none;
-}
-
-.carousel-slide.active {
-  opacity: 1;
-  pointer-events: auto;
 }
 
 .carousel-icon {
-  font-size: 40px;
+  font-size: 24px;
   flex-shrink: 0;
-  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
 }
 
 .carousel-text {
@@ -599,69 +602,67 @@ onUnmounted(() => {
 }
 
 .carousel-title {
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 800;
   color: #fff;
-  line-height: 1.3;
-  margin-bottom: 4px;
+  line-height: 1.2;
+  margin-bottom: 2px;
   text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .carousel-sub {
-  font-size: 13px;
+  font-size: 11px;
   color: rgba(255,255,255,0.8);
   text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .carousel-badge {
   flex-shrink: 0;
   background: rgba(255,255,255,0.95);
   color: #111;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 800;
-  padding: 4px 10px;
+  padding: 3px 8px;
   border-radius: 100px;
   letter-spacing: 0.04em;
 }
 
 .carousel-arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 10;
-  width: 32px;
-  height: 100%;
+  width: 28px;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0,0,0,0.35);
-  color: rgba(255,255,255,0.85);
-  font-size: 14px;
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.8);
+  font-size: 12px;
   border: none;
+  border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s;
   flex-shrink: 0;
 }
 
 .carousel-arrow:hover {
-  background: rgba(0,0,0,0.6);
+  background: rgba(255,255,255,0.2);
   color: #fff;
 }
-
-.carousel-prev { left: 0; }
-.carousel-next { right: 0; }
 
 .carousel-dots {
   display: flex;
   justify-content: center;
-  gap: 6px;
-  padding: 6px 0;
-  background: #0a0a0f;
+  gap: 5px;
 }
 
 .carousel-dot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
   border: none;
   background: rgba(255,255,255,0.3);
@@ -672,8 +673,9 @@ onUnmounted(() => {
 
 .carousel-dot.active {
   background: #fff;
-  transform: scale(1.25);
+  transform: scale(1.3);
 }
+
 
 /* Home body layout */
 .home-body {
