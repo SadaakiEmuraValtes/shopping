@@ -16,7 +16,7 @@
 
       <!-- Navigation -->
       <nav class="nav" :class="{ open: menuOpen }" @click.self="menuOpen = false">
-        <RouterLink to="/" class="nav-link" @click="menuOpen = false">TOP</RouterLink>
+        <RouterLink to="/" class="nav-link" @click.prevent="goToTop">TOP</RouterLink>
         <RouterLink to="/help" class="nav-link nav-link-help" @click="menuOpen = false">ヘルプ</RouterLink>
 
         <RouterLink to="/cart" class="nav-link nav-link-icon" @click="menuOpen = false">
@@ -49,14 +49,26 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, inject } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { store, logout, cartCount } from '../store/index.js'
 
 const router = useRouter()
+const route = useRoute()
 const menuOpen = ref(false)
+const incrementHomeKey = inject('incrementHomeKey')
 
 const cartItemCount = computed(() => cartCount())
+
+function goToTop() {
+  menuOpen.value = false
+  if (route.path === '/') {
+    incrementHomeKey()
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  } else {
+    router.push('/')
+  }
+}
 
 function handleLogout() {
   logout()

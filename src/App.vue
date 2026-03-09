@@ -6,16 +6,24 @@
       <RouterLink to="/help" class="notice-link">ヘルプ・免責事項</RouterLink>
     </div>
     <main class="main-content" :class="{ 'no-header': route.name === 'reviews' }">
-      <RouterView />
+      <RouterView :key="route.path === '/' ? homeKey : route.path" />
     </main>
   </div>
 </template>
 
 <script setup>
+import { ref, provide } from 'vue'
 import { useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
 
 const route = useRoute()
+const homeKey = ref(0)
+
+function incrementHomeKey() {
+  homeKey.value++
+}
+
+provide('incrementHomeKey', incrementHomeKey)
 </script>
 
 <style>
