@@ -49,7 +49,7 @@
           <!-- Order header -->
           <div :id="`order-head-${order.id}`" class="order-head" @click="toggleExpand(order.id)">
             <div class="order-head-left">
-              <span :id="`order-num-${order.id}`" class="order-num">{{ formatOrderId(order.id) }}</span>
+              <span :id="`order-num-${order.id}`" class="order-num">{{ formatOrderId(order.id, order.createdAt) }}</span>
               <span :id="`order-date-${order.id}`" class="order-date">{{ formatDate(order.createdAt) }}</span>
             </div>
             <div class="order-head-right">
@@ -205,10 +205,20 @@ const currentPage = ref(1)
 const orderSearchQuery = ref('')
 const ratingModal = ref({ open: false, productId: null, productName: '', stars: 0, comment: '' })
 
-function formatOrderId(id) {
+function formatOrderId(id, createdAt) {
   const s = String(id)
   if (s.startsWith('GS') && s.length === 20) {
     return `${s.slice(0, 2)}-${s.slice(2, 10)}-${s.slice(10, 16)}-${s.slice(16)}`
+  }
+  // Convert numeric legacy ID to GS format using createdAt
+  if (createdAt) {
+    const d = new Date(createdAt)
+    const pad = (n, l = 2) => String(n).padStart(l, '0')
+    const datePart = `${d.getUTCFullYear()}${pad(d.getUTCMonth() + 1)}${pad(d.getUTCDate())}`
+    const timePart = `${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}${pad(d.getUTCSeconds())}`
+    const randPart = String(Math.abs(Number(s)) % 10000).padStart(4, '0')
+    const gs = `GS${datePart}${timePart}${randPart}`
+    return `${gs.slice(0, 2)}-${gs.slice(2, 10)}-${gs.slice(10, 16)}-${gs.slice(16)}`
   }
   return `#${s}`
 }
@@ -217,8 +227,8 @@ const searchedOrders = computed(() => {
   if (!orderSearchQuery.value.trim()) return shuffledOrders.value
   const q = orderSearchQuery.value.trim().toLowerCase().replace(/-/g, '')
   return shuffledOrders.value.filter(o => {
-    const id = String(o.id).toLowerCase().replace(/-/g, '')
-    return id.includes(q)
+    const displayed = formatOrderId(o.id, o.createdAt).toLowerCase().replace(/-/g, '')
+    return displayed.includes(q)
   })
 })
 

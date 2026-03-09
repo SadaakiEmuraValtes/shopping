@@ -68,15 +68,43 @@
         </div>
         <div class="form-group">
           <label class="form-label">配送希望日</label>
-          <input
-            id="input-delivery-date"
-            v-model="shipping.deliveryDate"
-            type="date"
-            class="form-input"
-            :min="minDeliveryDate"
-            :max="maxDeliveryDate"
-            style="max-width:200px"
-          />
+          <div class="date-input-row">
+            <input
+              id="input-delivery-date"
+              v-model="shipping.deliveryDate"
+              type="text"
+              class="form-input"
+              placeholder="yyyy/mm/dd"
+              maxlength="10"
+              @input="onDeliveryDateInput"
+              @blur="validateDeliveryDate"
+            />
+            <button type="button" class="calendar-btn" @click="openDatePicker" title="カレンダーから選択">📅</button>
+            <input
+              ref="datePickerRef"
+              type="date"
+              class="hidden-date-picker"
+              :min="minDeliveryDateISO"
+              :max="maxDeliveryDateISO"
+              @change="onDatePickerChange"
+            />
+          </div>
+          <div class="date-hint">{{ minDeliveryDate }} 〜 {{ maxDeliveryDate }}（/ または - 区切り可）</div>
+          <div v-if="deliveryDateError" id="delivery-date-error" class="form-error">{{ deliveryDateError }}</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">配送希望時間帯</label>
+          <div id="time-slot-group" class="time-slots">
+            <label
+              v-for="slot in timeSlots"
+              :key="slot.value"
+              class="time-slot"
+              :class="{ active: shipping.deliveryTime === slot.value }"
+            >
+              <input type="radio" v-model="shipping.deliveryTime" :value="slot.value" />
+              {{ slot.label }}
+            </label>
+          </div>
         </div>
         <div class="step-btns">
           <RouterLink to="/cart" class="btn btn-secondary">← カートに戻る</RouterLink>
@@ -109,7 +137,11 @@
       <div v-if="payment.method === 'credit'" class="card-fields">
         <div class="form-group">
           <label class="form-label">カード番号 <span class="required">*</span></label>
-          <input v-model="payment.cardNumber" type="text" class="form-input" placeholder="0000 0000 0000 0000" maxlength="19" @input="formatCardNumber" />
+          <div class="card-number-row">
+            <input v-model="payment.cardNumber" type="text" class="form-input" placeholder="0000 0000 0000 0000" maxlength="19" @input="formatCardNumber" />
+            <span v-if="cardBrand" class="card-brand-badge" :style="{ background: cardBrand.bg }">{{ cardBrand.symbol }}</span>
+          </div>
+          <div v-if="cardBrand" class="card-brand-name">{{ cardBrand.name }}</div>
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -157,6 +189,7 @@
             <p>{{ shipping.prefecture }}{{ shipping.address }}{{ shipping.building }}</p>
             <p>{{ shipping.phone }}</p>
             <p v-if="shipping.deliveryDate">配送希望日：{{ shipping.deliveryDate }}</p>
+            <p v-if="shipping.deliveryTime">配送希望時間帯：{{ timeSlots.find(s => s.value === shipping.deliveryTime)?.label }}</p>
           </div>
           <button class="btn-edit" @click="step = 1">変更</button>
         </div>
@@ -203,7 +236,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { store, getProduct, cartTotal, placeOrder, formatPrice, getUserDefaultCard } from '../store/index.js'
 
@@ -224,6 +257,7 @@ const shipping = ref({
   address: '',
   building: '',
   deliveryDate: '',
+  deliveryTime: '',
 })
 
 const payment = ref({
@@ -235,6 +269,17 @@ const payment = ref({
 })
 
 const cardLimitError = ref('')
+const deliveryDateError = ref('')
+const datePickerRef = ref(null)
+
+const timeSlots = [
+  { value: '', label: '指定なし' },
+  { value: 'am', label: '午前中（8:00〜12:00）' },
+  { value: '14-16', label: '14:00〜16:00' },
+  { value: '16-18', label: '16:00〜18:00' },
+  { value: '18-20', label: '18:00〜20:00' },
+  { value: '20-21', label: '20:00〜21:00' },
+]
 
 onMounted(() => {
   const card = getUserDefaultCard()
@@ -262,16 +307,35 @@ const prefectures = [
   '熊本県','大分県','宮崎県','鹿児島県','沖縄県',
 ]
 
+function localDateStr(d) {
+  const pad = n => String(n).padStart(2, '0')
+  return `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())}`
+}
+
+const minDeliveryDateISO = computed(() => minDeliveryDate.value.replace(/\//g, '-'))
+const maxDeliveryDateISO = computed(() => maxDeliveryDate.value.replace(/\//g, '-'))
+
+const cardBrand = computed(() => {
+  const num = payment.value.cardNumber.replace(/\s/g, '')
+  if (!num) return null
+  if (/^4/.test(num)) return { name: 'Visa', bg: '#1a1f71', symbol: 'VISA' }
+  if (/^5[1-5]/.test(num) || /^2[2-7]/.test(num)) return { name: 'Mastercard', bg: '#eb001b', symbol: 'MC' }
+  if (/^3[47]/.test(num)) return { name: 'American Express', bg: '#007bc1', symbol: 'AMEX' }
+  if (/^35(2[89]|[3-8])/.test(num)) return { name: 'JCB', bg: '#003087', symbol: 'JCB' }
+  if (/^6(011|5)/.test(num)) return { name: 'Discover', bg: '#ff6600', symbol: 'DISC' }
+  return null
+})
+
 const minDeliveryDate = computed(() => {
   const d = new Date()
   d.setDate(d.getDate() + 1)
-  return d.toISOString().split('T')[0]
+  return localDateStr(d)
 })
 
 const maxDeliveryDate = computed(() => {
   const d = new Date()
-  d.setDate(d.getDate() + 14)
-  return d.toISOString().split('T')[0]
+  d.setMonth(d.getMonth() + 1)
+  return localDateStr(d)
 })
 
 const cartItems = computed(() =>
@@ -315,12 +379,67 @@ async function fetchAddress(zipcode) {
   }
 }
 
+function openDatePicker() {
+  const el = datePickerRef.value
+  if (!el) return
+  if (el.showPicker) {
+    el.showPicker()
+  } else {
+    el.click()
+  }
+}
+
+function onDatePickerChange(e) {
+  const val = e.target.value // yyyy-mm-dd
+  if (val) {
+    shipping.value.deliveryDate = val.replace(/-/g, '/')
+    deliveryDateError.value = ''
+  }
+}
+
+function onDeliveryDateInput(e) {
+  // Extract digits only, then auto-insert slashes
+  const digits = e.target.value.replace(/\D/g, '')
+  let formatted = digits
+  if (digits.length > 6) {
+    formatted = digits.slice(0, 4) + '/' + digits.slice(4, 6) + '/' + digits.slice(6, 8)
+  } else if (digits.length > 4) {
+    formatted = digits.slice(0, 4) + '/' + digits.slice(4, 6)
+  }
+  shipping.value.deliveryDate = formatted
+  deliveryDateError.value = ''
+}
+
+function validateDeliveryDate() {
+  const val = shipping.value.deliveryDate
+  if (!val) { deliveryDateError.value = ''; return true }
+  const normalized = val.replace(/-/g, '/')
+  if (!/^\d{4}\/\d{2}\/\d{2}$/.test(normalized)) {
+    deliveryDateError.value = 'yyyy/mm/dd または yyyy-mm-dd 形式で入力してください'
+    return false
+  }
+  const d = new Date(normalized.replace(/\//g, '-'))
+  if (isNaN(d.getTime())) {
+    deliveryDateError.value = '正しい日付を入力してください'
+    return false
+  }
+  const minStr = minDeliveryDate.value.replace(/\//g, '-')
+  const maxStr = maxDeliveryDate.value.replace(/\//g, '-')
+  if (normalized.replace(/\//g, '-') < minStr || normalized.replace(/\//g, '-') > maxStr) {
+    deliveryDateError.value = `${minDeliveryDate.value} 〜 ${maxDeliveryDate.value} の範囲で指定してください`
+    return false
+  }
+  deliveryDateError.value = ''
+  return true
+}
+
 function formatCardNumber(e) {
   let val = e.target.value.replace(/\D/g, '').substring(0, 16)
   payment.value.cardNumber = val.replace(/(.{4})/g, '$1 ').trim()
 }
 
 function goStep2() {
+  if (!validateDeliveryDate()) return
   step.value = 2
 }
 
@@ -470,6 +589,119 @@ async function handleOrder() {
 
 .postal-error {
   color: var(--danger);
+}
+
+.date-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 240px;
+}
+
+.date-input-row .form-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.calendar-btn {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  font-size: 18px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.calendar-btn:hover {
+  border-color: var(--accent);
+  background: var(--bg-card-hover);
+}
+
+.hidden-date-picker {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 0;
+  height: 0;
+}
+
+.card-number-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.card-number-row .form-input { flex: 1; }
+
+.card-brand-badge {
+  flex-shrink: 0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.05em;
+  min-width: 42px;
+  text-align: center;
+}
+
+.card-brand-name {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.date-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.form-error {
+  font-size: 12px;
+  color: var(--danger);
+  margin-top: 4px;
+}
+
+.time-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.time-slot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.time-slot input[type="radio"] {
+  display: none;
+}
+
+.time-slot:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.time-slot.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
 }
 
 .step-btns {
