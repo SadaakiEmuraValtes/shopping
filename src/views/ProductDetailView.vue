@@ -1,8 +1,8 @@
 <template>
-  <div class="product-detail" v-if="product">
+  <div id="product-detail-page" class="product-detail" v-if="product">
     <div class="container">
       <!-- Breadcrumb -->
-      <nav class="breadcrumb">
+      <nav id="breadcrumb" class="breadcrumb">
         <a href="/" class="bc-link">TOP</a>
         <span class="bc-sep">›</span>
         <span>{{ product.category }}</span>
@@ -14,6 +14,7 @@
         <!-- Left: Image -->
         <div class="detail-image-wrap">
           <div
+            :id="`product-image-${product.id}`"
             class="detail-image"
             :style="{ background: `linear-gradient(135deg, ${product.color}cc, ${product.color}33)` }"
           >
@@ -22,7 +23,7 @@
           </div>
 
           <!-- Stock status -->
-          <div class="stock-info">
+          <div :id="`stock-info-${product.id}`" class="stock-info">
             <template v-if="stockAmount <= 0">
               <span class="stock-badge sold-out">在庫切れ</span>
             </template>
@@ -41,32 +42,32 @@
         <!-- Right: Info -->
         <div class="detail-info">
           <div class="detail-tags">
-            <span class="tag" :class="platformTagClass">{{ product.platform }}</span>
-            <span class="tag" style="background:rgba(255,255,255,0.1); color:var(--text-secondary)">
+            <span :id="`product-platform-${product.id}`" class="tag" :class="platformTagClass">{{ product.platform }}</span>
+            <span :id="`product-category-${product.id}`" class="tag" style="background:rgba(255,255,255,0.1); color:var(--text-secondary)">
               {{ product.category }}
             </span>
             <span v-if="product.limited" class="tag tag-limited">限定品</span>
           </div>
 
-          <h1 class="detail-title">{{ product.name }}</h1>
+          <h1 :id="`product-name-${product.id}`" class="detail-title">{{ product.name }}</h1>
 
-          <div class="detail-rating">
+          <div :id="`product-rating-${product.id}`" class="detail-rating">
             <span class="stars">{{ renderStars(product.rating) }}</span>
             <span class="rating-num">{{ product.rating.toFixed(1) }}</span>
           </div>
 
-          <div class="detail-price">{{ formatPrice(product.price) }}</div>
+          <div :id="`product-price-${product.id}`" class="detail-price">{{ formatPrice(product.price) }}</div>
 
-          <p class="detail-desc">{{ product.description }}</p>
+          <p :id="`product-desc-${product.id}`" class="detail-desc">{{ product.description }}</p>
 
-          <div class="detail-actions" v-if="stockAmount > 0">
+          <div id="detail-actions" class="detail-actions" v-if="stockAmount > 0">
             <!-- Quantity selector -->
             <div class="qty-row">
               <label class="qty-label">数量</label>
               <div class="qty-control">
-                <button class="qty-btn" @click="qty = Math.max(1, qty - 1)">−</button>
-                <span class="qty-value">{{ qty }}</span>
-                <button class="qty-btn" @click="qty = Math.min(stockAmount, qty + 1)">＋</button>
+                <button id="qty-minus" class="qty-btn" @click="qty = Math.max(1, qty - 1)">−</button>
+                <span id="qty-value" class="qty-value">{{ qty }}</span>
+                <button id="qty-plus" class="qty-btn" @click="qty = Math.min(stockAmount, qty + 1)">＋</button>
               </div>
               <span class="qty-max">最大 {{ stockAmount }} 点</span>
             </div>
@@ -74,6 +75,7 @@
             <!-- Buttons -->
             <div class="action-buttons">
               <button
+                id="add-to-cart-btn"
                 class="btn btn-secondary btn-lg"
                 @click="handleAddToCart"
               >
@@ -81,6 +83,7 @@
               </button>
 
               <button
+                id="buy-now-btn"
                 class="btn btn-primary btn-lg"
                 @click="handleBuyNow"
               >
@@ -89,6 +92,7 @@
             </div>
 
             <button
+              id="fav-btn-detail"
               class="btn-fav-large"
               :class="{ active: favorited }"
               @click="handleToggleFavorite"
@@ -97,9 +101,10 @@
             </button>
           </div>
 
-          <div v-else class="sold-out-message">
+          <div v-else id="sold-out-section" class="sold-out-message">
             <p>この商品は現在在庫切れです。</p>
             <button
+              id="fav-btn-detail"
               class="btn-fav-large"
               :class="{ active: favorited }"
               @click="handleToggleFavorite"
@@ -109,10 +114,23 @@
           </div>
         </div>
       </div>
+
+      <!-- Reviews section (iframe) -->
+      <div id="reviews-section" class="reviews-section">
+        <h2 class="reviews-heading">レビュー</h2>
+        <iframe
+          id="reviews-iframe"
+          :src="reviewsIframeUrl"
+          class="reviews-iframe"
+          frameborder="0"
+          scrolling="no"
+          ref="reviewsIframe"
+        ></iframe>
+      </div>
     </div>
   </div>
 
-  <div v-else class="empty-state">
+  <div v-else id="product-not-found" class="empty-state">
     <div class="empty-icon">😕</div>
     <h3>商品が見つかりません</h3>
     <a href="/" class="btn btn-primary" style="margin-top:16px">TOPに戻る</a>
@@ -120,7 +138,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getProduct, getStock, addToCart, toggleFavorite, isFavorite, formatPrice } from '../store/index.js'
 
@@ -133,12 +151,34 @@ const favorited = computed(() => product.value ? isFavorite(product.value.id) : 
 
 const qty = ref(1)
 const cartFlash = ref(false)
+const reviewsIframe = ref(null)
+
+const reviewsIframeUrl = computed(() => {
+  return `${import.meta.env.BASE_URL}#/reviews/${route.params.id}`
+})
+
+function onIframeMessage(e) {
+  if (e.data?.type === 'iframeHeight' && reviewsIframe.value) {
+    reviewsIframe.value.style.height = e.data.height + 'px'
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('message', onIframeMessage)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('message', onIframeMessage)
+})
 
 const platformTagClass = computed(() => {
   if (!product.value) return ''
-  if (product.value.platform === 'PS5') return 'tag-ps5'
-  if (product.value.platform === 'Switch2') return 'tag-switch2'
-  return 'tag-switch'
+  const p = product.value.platform
+  if (p === 'NexStation5') return 'tag-nexstation5'
+  if (p === 'FlipDual2') return 'tag-flipdual2'
+  if (p === 'FlipDual') return 'tag-flipdual'
+  if (p === 'XVertex') return 'tag-xvertex'
+  return 'tag-flipdual'
 })
 
 function renderStars(rating) {
@@ -426,6 +466,27 @@ function handleToggleFavorite() {
 .sold-out-message p {
   color: var(--danger);
   margin-bottom: 12px;
+}
+
+/* Reviews */
+.reviews-section {
+  margin-top: 48px;
+  border-top: 1px solid var(--border);
+  padding-top: 32px;
+}
+
+.reviews-heading {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.reviews-iframe {
+  width: 100%;
+  min-height: 300px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: #f8f8fc;
 }
 
 @media (max-width: 768px) {

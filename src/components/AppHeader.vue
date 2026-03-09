@@ -17,6 +17,7 @@
       <!-- Navigation -->
       <nav class="nav" :class="{ open: menuOpen }" @click.self="menuOpen = false">
         <RouterLink to="/" class="nav-link" @click="menuOpen = false">TOP</RouterLink>
+        <RouterLink to="/help" class="nav-link nav-link-help" @click="menuOpen = false">ヘルプ</RouterLink>
 
         <RouterLink to="/cart" class="nav-link nav-link-icon" @click="menuOpen = false">
           <span>🛒</span>
@@ -147,6 +148,15 @@ function handleLogout() {
 
 .nav-link-register:hover {
   background: var(--accent-hover) !important;
+}
+
+.nav-link-help {
+  color: #a78bfa !important;
+}
+
+.nav-link-help:hover,
+.nav-link-help.router-link-active {
+  background: rgba(167, 139, 250, 0.12) !important;
 }
 
 .nav-link-logout {

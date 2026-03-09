@@ -7,7 +7,7 @@
 
       <div v-if="order" class="order-detail">
         <div class="order-header">
-          <span class="order-id">注文番号: #{{ order.id }}</span>
+          <span class="order-id">注文番号: {{ formatOrderId(order.id) }}</span>
           <span class="order-date">{{ formatDate(order.createdAt) }}</span>
         </div>
 
@@ -69,6 +69,15 @@ function formatDate(isoStr) {
     hour: '2-digit',
     minute: '2-digit',
   })
+}
+
+// GS20260309153042xxxx -> GS-20260309-153042-xxxx
+function formatOrderId(id) {
+  const s = String(id)
+  if (s.startsWith('GS') && s.length === 20) {
+    return `${s.slice(0, 2)}-${s.slice(2, 10)}-${s.slice(10, 16)}-${s.slice(16)}`
+  }
+  return `#${s}`
 }
 </script>
 

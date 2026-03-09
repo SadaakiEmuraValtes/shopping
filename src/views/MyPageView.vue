@@ -50,6 +50,30 @@
         </RouterLink>
       </div>
 
+      <!-- Default card -->
+      <div v-if="defaultCard" id="default-card-section" class="card-section">
+        <h2 class="section-title">デフォルトクレジットカード</h2>
+        <div id="default-card" class="credit-card">
+          <div id="card-number" class="card-number">{{ defaultCard.number }}</div>
+          <div class="card-row">
+            <div>
+              <div class="card-label">名義人</div>
+              <div id="card-name" class="card-value">{{ defaultCard.cardName }}</div>
+            </div>
+            <div>
+              <div class="card-label">有効期限</div>
+              <div id="card-expiry" class="card-value">{{ defaultCard.expiry }}</div>
+            </div>
+            <div>
+              <div class="card-label">利用可能額</div>
+              <div id="card-limit" class="card-value" :class="{ 'card-limit-low': defaultCard.cardLimit < 20000 }">
+                {{ formatPrice(defaultCard.cardLimit) }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Account actions -->
       <div class="account-actions">
         <h2 class="section-title">アカウント</h2>
@@ -65,7 +89,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { store, logout, cartCount, formatPrice } from '../store/index.js'
+import { store, logout, cartCount, formatPrice, getUserDefaultCard } from '../store/index.js'
 
 const router = useRouter()
 
@@ -79,6 +103,8 @@ const joinedDate = computed(() => {
 const recentOrders = computed(() => {
   return [...store.orders].reverse().slice(0, 5)
 })
+
+const defaultCard = computed(() => getUserDefaultCard())
 
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -241,6 +267,53 @@ function handleLogout() {
 .order-row-total {
   font-weight: 700;
   color: var(--accent);
+}
+
+/* Credit card */
+.card-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+}
+
+.credit-card {
+  background: linear-gradient(135deg, #1a2a4a, #2a1a4a);
+  border-radius: 12px;
+  padding: 20px 24px;
+  color: #fff;
+}
+
+.card-number {
+  font-size: 16px;
+  font-family: monospace;
+  letter-spacing: 2px;
+  margin-bottom: 16px;
+  color: rgba(255,255,255,0.9);
+}
+
+.card-row {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.card-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 2px;
+}
+
+.card-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.card-limit-low {
+  color: #fbbf24;
 }
 
 /* Actions */

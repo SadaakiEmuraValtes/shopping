@@ -56,6 +56,16 @@ const routes = [
     component: () => import('../views/PurchaseHistoryView.vue'),
     meta: { requiresAuth: true },
   },
+  {
+    path: '/reviews/:id',
+    name: 'reviews',
+    component: () => import('../views/ReviewsView.vue'),
+  },
+  {
+    path: '/help',
+    name: 'help',
+    component: () => import('../views/HelpView.vue'),
+  },
 ]
 
 const router = createRouter({
@@ -66,12 +76,24 @@ const router = createRouter({
   },
 })
 
+let initialNavigationDone = false
+
 router.beforeEach((to, from, next) => {
+  // Force full browser load on every navigation after the initial page load
+  if (initialNavigationDone) {
+    window.location.href = import.meta.env.BASE_URL + '?_t=' + Date.now() + '#' + to.fullPath
+    next(false)
+    return
+  }
   if (to.meta.requiresAuth && !store.currentUser) {
     next({ name: 'login', query: { redirect: to.fullPath } })
   } else {
     next()
   }
+})
+
+router.afterEach(() => {
+  initialNavigationDone = true
 })
 
 export default router

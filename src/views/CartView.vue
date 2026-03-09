@@ -2,19 +2,20 @@
   <div class="container">
     <h1 class="page-title">🛒 ショッピングカート</h1>
 
-    <div v-if="store.cart.length === 0" class="empty-state">
+    <div v-if="store.cart.length === 0" id="cart-empty" class="empty-state">
       <div class="empty-icon">🛒</div>
       <h3>カートは空です</h3>
       <p>商品を追加してみましょう</p>
       <RouterLink to="/" class="btn btn-primary" style="margin-top:16px">商品一覧へ</RouterLink>
     </div>
 
-    <div v-else class="cart-layout">
+    <div v-else id="cart-layout" class="cart-layout">
       <!-- Cart items -->
-      <div class="cart-items">
+      <div id="cart-items" class="cart-items">
         <div
           v-for="item in cartItems"
           :key="item.productId"
+          :id="`cart-item-${item.productId}`"
           class="cart-item"
         >
           <a :href="productUrl(item.product)" target="_blank" rel="noopener" class="item-image-link">
@@ -27,7 +28,7 @@
           </a>
 
           <div class="item-info">
-            <a :href="productUrl(item.product)" target="_blank" rel="noopener" class="item-name">
+            <a :href="productUrl(item.product)" target="_blank" rel="noopener" :id="`cart-item-name-${item.productId}`" class="item-name">
               {{ item.product.name }}
             </a>
             <div class="item-meta">
@@ -39,18 +40,18 @@
 
           <div class="item-controls">
             <div class="qty-control">
-              <button class="qty-btn" @click="decreaseQty(item)" :disabled="item.quantity <= 1">−</button>
-              <span class="qty-value">{{ item.quantity }}</span>
-              <button class="qty-btn" @click="increaseQty(item)" :disabled="item.quantity >= getStock(item.productId)">＋</button>
+              <button :id="`cart-qty-minus-${item.productId}`" class="qty-btn" @click="decreaseQty(item)" :disabled="item.quantity <= 1">−</button>
+              <span :id="`cart-qty-${item.productId}`" class="qty-value">{{ item.quantity }}</span>
+              <button :id="`cart-qty-plus-${item.productId}`" class="qty-btn" @click="increaseQty(item)" :disabled="item.quantity >= getStock(item.productId)">＋</button>
             </div>
-            <div class="item-subtotal">{{ formatPrice(item.product.price * item.quantity) }}</div>
-            <button class="remove-btn" @click="handleRemove(item.productId)" title="削除">🗑️</button>
+            <div :id="`cart-subtotal-${item.productId}`" class="item-subtotal">{{ formatPrice(item.product.price * item.quantity) }}</div>
+            <button :id="`cart-remove-${item.productId}`" class="remove-btn" @click="handleRemove(item.productId)" title="削除">🗑️</button>
           </div>
         </div>
       </div>
 
       <!-- Summary -->
-      <div class="cart-summary">
+      <div id="cart-summary" class="cart-summary">
         <h2 class="summary-title">注文サマリー</h2>
 
         <div class="summary-rows">
@@ -64,12 +65,12 @@
 
         <div class="summary-total">
           <span>合計</span>
-          <span class="total-price">{{ formatPrice(totalAmount) }}</span>
+          <span id="cart-total" class="total-price">{{ formatPrice(totalAmount) }}</span>
         </div>
 
         <p class="summary-tax">※ 税込価格</p>
 
-        <button class="btn btn-primary btn-lg btn-block" @click="handleCheckout">
+        <button id="btn-checkout" class="btn btn-primary btn-lg btn-block" @click="handleCheckout">
           購入手続きへ
         </button>
 

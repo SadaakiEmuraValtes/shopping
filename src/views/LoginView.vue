@@ -5,10 +5,11 @@
       <h1 class="auth-title">ログイン</h1>
       <p class="auth-sub">アカウントにサインインしてください</p>
 
-      <form @submit.prevent="handleLogin">
+      <form id="login-form" @submit.prevent="handleLogin">
         <div class="form-group">
           <label class="form-label">メールアドレス</label>
           <input
+            id="input-email"
             v-model="email"
             type="email"
             class="form-input"
@@ -22,6 +23,7 @@
           <label class="form-label">パスワード</label>
           <div class="password-wrap">
             <input
+              id="input-password"
               v-model="password"
               :type="showPass ? 'text' : 'password'"
               class="form-input"
@@ -35,9 +37,9 @@
           </div>
         </div>
 
-        <p v-if="errorMsg" class="form-error" style="margin-bottom:12px">{{ errorMsg }}</p>
+        <p v-if="errorMsg" id="login-error" class="form-error" style="margin-bottom:12px">{{ errorMsg }}</p>
 
-        <button type="submit" class="btn btn-primary btn-lg btn-block" :disabled="loading">
+        <button id="btn-login" type="submit" class="btn btn-primary btn-lg btn-block" :disabled="loading">
           <span v-if="loading" class="spinner spinner-sm"></span>
           <span>{{ loading ? 'ログイン中...' : 'ログイン' }}</span>
         </button>
@@ -55,7 +57,6 @@
             {{ user.name }}
           </button>
         </div>
-        <p class="hint-note">パスワード: <code>password123</code></p>
       </div>
 
       <div class="auth-footer">
@@ -81,14 +82,16 @@ const errorMsg = ref('')
 const loading = ref(false)
 
 const testAccounts = [
-  { name: '田中 太郎', email: 'tanaka@example.com' },
-  { name: '山田 花子', email: 'yamada@example.com' },
-  { name: '佐藤 健', email: 'sato@example.com' },
+  { name: '田中 太郎', email: 'tanaka@example.com', password: 'GamePass#2024' },
+  { name: '山田 花子', email: 'yamada@example.com', password: 'Switch2@Love' },
+  { name: '佐藤 健', email: 'sato@example.com', password: 'SoulsLiker99' },
+  { name: '鈴木 美咲', email: 'suzuki@example.com', password: 'Kawaii_Gamer!' },
+  { name: '高橋 雄太', email: 'takahashi@example.com', password: 'Pro_Gamer2025' },
 ]
 
 function fillAccount(user) {
   email.value = user.email
-  password.value = 'password123'
+  password.value = user.password
 }
 
 async function handleLogin() {

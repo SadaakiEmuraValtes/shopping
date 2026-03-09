@@ -20,47 +20,73 @@
     </div>
 
     <!-- Step 1: Shipping -->
-    <div v-if="step === 1" class="step-content">
+    <div v-if="step === 1" id="step-shipping" class="step-content">
       <h2 class="step-title">配送先情報</h2>
-      <form @submit.prevent="goStep2">
+      <form id="shipping-form" @submit.prevent="goStep2">
         <div class="form-row">
           <div class="form-group">
             <label class="form-label">お名前 <span class="required">*</span></label>
-            <input v-model="shipping.name" type="text" class="form-input" placeholder="山田 太郎" required />
+            <input id="input-name" v-model="shipping.name" type="text" class="form-input" placeholder="山田 太郎" required />
           </div>
           <div class="form-group">
             <label class="form-label">電話番号 <span class="required">*</span></label>
-            <input v-model="shipping.phone" type="tel" class="form-input" placeholder="090-0000-0000" required />
+            <input id="input-phone" v-model="shipping.phone" type="tel" class="form-input" placeholder="090-0000-0000" required />
           </div>
         </div>
         <div class="form-group">
           <label class="form-label">郵便番号 <span class="required">*</span></label>
-          <input v-model="shipping.postal" type="text" class="form-input" placeholder="000-0000" required maxlength="8" style="max-width:180px" />
+          <div class="postal-row">
+            <input
+              id="input-postal"
+              v-model="shipping.postal"
+              type="text"
+              class="form-input"
+              placeholder="1234567"
+              required
+              maxlength="8"
+              style="max-width:180px"
+              @input="onPostalInput"
+            />
+            <span v-if="postalLoading" class="postal-hint">住所取得中...</span>
+            <span v-else-if="postalError" id="postal-error" class="postal-hint postal-error">{{ postalError }}</span>
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">都道府県 <span class="required">*</span></label>
-          <select v-model="shipping.prefecture" class="form-select" required style="max-width:200px">
+          <select id="input-prefecture" v-model="shipping.prefecture" class="form-select" required style="max-width:200px">
             <option value="">選択してください</option>
             <option v-for="p in prefectures" :key="p" :value="p">{{ p }}</option>
           </select>
         </div>
         <div class="form-group">
           <label class="form-label">市区町村・番地 <span class="required">*</span></label>
-          <input v-model="shipping.address" type="text" class="form-input" placeholder="○○市○○町1-2-3" required />
+          <input id="input-address" v-model="shipping.address" type="text" class="form-input" placeholder="○○市○○町1-2-3" required />
         </div>
         <div class="form-group">
           <label class="form-label">建物名・部屋番号</label>
-          <input v-model="shipping.building" type="text" class="form-input" placeholder="○○マンション 101号室" />
+          <input id="input-building" v-model="shipping.building" type="text" class="form-input" placeholder="○○マンション 101号室" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">配送希望日</label>
+          <input
+            id="input-delivery-date"
+            v-model="shipping.deliveryDate"
+            type="date"
+            class="form-input"
+            :min="minDeliveryDate"
+            :max="maxDeliveryDate"
+            style="max-width:200px"
+          />
         </div>
         <div class="step-btns">
           <RouterLink to="/cart" class="btn btn-secondary">← カートに戻る</RouterLink>
-          <button type="submit" class="btn btn-primary">お支払い方法へ →</button>
+          <button id="btn-to-payment" type="submit" class="btn btn-primary">お支払い方法へ →</button>
         </div>
       </form>
     </div>
 
     <!-- Step 2: Payment -->
-    <div v-if="step === 2" class="step-content">
+    <div v-if="step === 2" id="step-payment" class="step-content">
       <h2 class="step-title">お支払い方法</h2>
 
       <div class="payment-methods">
@@ -112,13 +138,13 @@
       </div>
 
       <div class="step-btns">
-        <button class="btn btn-secondary" @click="step = 1">← 配送先に戻る</button>
-        <button class="btn btn-primary" @click="goStep3" :disabled="!payment.method">注文確認へ →</button>
+        <button id="btn-back-to-shipping" class="btn btn-secondary" @click="step = 1">← 配送先に戻る</button>
+        <button id="btn-to-confirm" class="btn btn-primary" @click="goStep3" :disabled="!payment.method">注文確認へ →</button>
       </div>
     </div>
 
     <!-- Step 3: Confirm -->
-    <div v-if="step === 3" class="step-content">
+    <div v-if="step === 3" id="step-confirm" class="step-content">
       <h2 class="step-title">注文確認</h2>
 
       <div class="confirm-grid">
@@ -130,6 +156,7 @@
             <p>〒{{ shipping.postal }}</p>
             <p>{{ shipping.prefecture }}{{ shipping.address }}{{ shipping.building }}</p>
             <p>{{ shipping.phone }}</p>
+            <p v-if="shipping.deliveryDate">配送希望日：{{ shipping.deliveryDate }}</p>
           </div>
           <button class="btn-edit" @click="step = 1">変更</button>
         </div>
@@ -162,9 +189,11 @@
         </div>
       </div>
 
+      <p v-if="cardLimitError" id="card-limit-error" class="form-error" style="margin-bottom:12px">{{ cardLimitError }}</p>
+
       <div class="step-btns">
-        <button class="btn btn-secondary" @click="step = 2">← お支払いに戻る</button>
-        <button class="btn btn-success btn-lg" @click="handleOrder" :disabled="ordering">
+        <button id="btn-back-to-payment" class="btn btn-secondary" @click="step = 2">← お支払いに戻る</button>
+        <button id="btn-place-order" class="btn btn-success btn-lg" @click="handleOrder" :disabled="ordering">
           <span v-if="ordering" class="spinner spinner-sm"></span>
           {{ ordering ? '処理中...' : '注文を確定する' }}
         </button>
@@ -174,14 +203,16 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { store, getProduct, cartTotal, placeOrder, formatPrice } from '../store/index.js'
+import { store, getProduct, cartTotal, placeOrder, formatPrice, getUserDefaultCard } from '../store/index.js'
 
 const router = useRouter()
 
 const step = ref(1)
 const ordering = ref(false)
+const postalLoading = ref(false)
+const postalError = ref('')
 
 const stepLabels = ['配送先', 'お支払い', '確認']
 
@@ -192,6 +223,7 @@ const shipping = ref({
   prefecture: '',
   address: '',
   building: '',
+  deliveryDate: '',
 })
 
 const payment = ref({
@@ -200,6 +232,18 @@ const payment = ref({
   expiry: '',
   cvv: '',
   cardName: '',
+})
+
+const cardLimitError = ref('')
+
+onMounted(() => {
+  const card = getUserDefaultCard()
+  if (card) {
+    payment.value.method = 'credit'
+    payment.value.cardNumber = card.number
+    payment.value.expiry = card.expiry
+    payment.value.cardName = card.cardName
+  }
 })
 
 const paymentMethods = [
@@ -218,6 +262,18 @@ const prefectures = [
   '熊本県','大分県','宮崎県','鹿児島県','沖縄県',
 ]
 
+const minDeliveryDate = computed(() => {
+  const d = new Date()
+  d.setDate(d.getDate() + 1)
+  return d.toISOString().split('T')[0]
+})
+
+const maxDeliveryDate = computed(() => {
+  const d = new Date()
+  d.setDate(d.getDate() + 14)
+  return d.toISOString().split('T')[0]
+})
+
 const cartItems = computed(() =>
   store.cart.map(item => ({ ...item, product: getProduct(item.productId) })).filter(i => i.product)
 )
@@ -228,6 +284,36 @@ const selectedPaymentName = computed(() => {
   const m = paymentMethods.find(p => p.value === payment.value.method)
   return m ? m.name : ''
 })
+
+let postalTimer = null
+
+function onPostalInput() {
+  postalError.value = ''
+  const digits = shipping.value.postal.replace(/\D/g, '')
+  if (digits.length !== 7) return
+  clearTimeout(postalTimer)
+  postalTimer = setTimeout(() => fetchAddress(digits), 400)
+}
+
+async function fetchAddress(zipcode) {
+  postalLoading.value = true
+  postalError.value = ''
+  try {
+    const res = await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${zipcode}`)
+    const data = await res.json()
+    if (data.results && data.results.length > 0) {
+      const r = data.results[0]
+      shipping.value.prefecture = r.address1
+      shipping.value.address = r.address2 + r.address3
+    } else {
+      postalError.value = '郵便番号が見つかりません'
+    }
+  } catch {
+    postalError.value = '住所取得に失敗しました'
+  } finally {
+    postalLoading.value = false
+  }
+}
 
 function formatCardNumber(e) {
   let val = e.target.value.replace(/\D/g, '').substring(0, 16)
@@ -250,6 +336,15 @@ function goStep3() {
 }
 
 async function handleOrder() {
+  cardLimitError.value = ''
+  // Check card limit
+  if (payment.value.method === 'credit') {
+    const card = getUserDefaultCard()
+    if (card?.cardLimit && totalAmount.value > card.cardLimit) {
+      cardLimitError.value = `カードの利用可能額（${formatPrice(card.cardLimit)}）を超えています。別のお支払い方法をお選びください。`
+      return
+    }
+  }
   ordering.value = true
   await new Promise(r => setTimeout(r, 1200))
 
@@ -358,6 +453,22 @@ async function handleOrder() {
 }
 
 .required {
+  color: var(--danger);
+}
+
+.postal-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.postal-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.postal-error {
   color: var(--danger);
 }
 

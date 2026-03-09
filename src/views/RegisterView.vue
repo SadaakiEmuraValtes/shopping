@@ -5,10 +5,11 @@
       <h1 class="auth-title">会員登録</h1>
       <p class="auth-sub">新規アカウントを作成します</p>
 
-      <form @submit.prevent="handleRegister">
+      <form id="register-form" @submit.prevent="handleRegister">
         <div class="form-group">
           <label class="form-label">お名前</label>
           <input
+            id="input-name"
             v-model="name"
             type="text"
             class="form-input"
@@ -21,6 +22,7 @@
         <div class="form-group">
           <label class="form-label">メールアドレス</label>
           <input
+            id="input-email"
             v-model="email"
             type="email"
             class="form-input"
@@ -34,6 +36,7 @@
           <label class="form-label">パスワード</label>
           <div class="password-wrap">
             <input
+              id="input-password"
               v-model="password"
               :type="showPass ? 'text' : 'password'"
               class="form-input"
@@ -51,6 +54,7 @@
         <div class="form-group">
           <label class="form-label">パスワード（確認）</label>
           <input
+            id="input-password-confirm"
             v-model="passwordConfirm"
             :type="showPass ? 'text' : 'password'"
             class="form-input"
@@ -60,9 +64,9 @@
           />
         </div>
 
-        <p v-if="errorMsg" class="form-error" style="margin-bottom:12px">{{ errorMsg }}</p>
+        <p v-if="errorMsg" id="register-error" class="form-error" style="margin-bottom:12px">{{ errorMsg }}</p>
 
-        <button type="submit" class="btn btn-primary btn-lg btn-block" :disabled="loading">
+        <button id="btn-register" type="submit" class="btn btn-primary btn-lg btn-block" :disabled="loading">
           <span v-if="loading" class="spinner spinner-sm"></span>
           <span>{{ loading ? '登録中...' : '会員登録する' }}</span>
         </button>

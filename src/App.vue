@@ -1,14 +1,21 @@
 <template>
   <div id="app-root">
-    <AppHeader />
-    <main class="main-content">
+    <AppHeader v-if="route.name !== 'reviews'" />
+    <div v-if="route.name !== 'reviews'" id="test-site-notice" class="test-notice">
+      ⚠️ このサイトはテスト自動化の練習用デモサイトです。実際の商品販売は行っておりません。
+      <RouterLink to="/help" class="notice-link">ヘルプ・免責事項</RouterLink>
+    </div>
+    <main class="main-content" :class="{ 'no-header': route.name === 'reviews' }">
       <RouterView />
     </main>
   </div>
 </template>
 
 <script setup>
+import { useRoute } from 'vue-router'
 import AppHeader from './components/AppHeader.vue'
+
+const route = useRoute()
 </script>
 
 <style>
@@ -20,6 +27,7 @@ import AppHeader from './components/AppHeader.vue'
 }
 
 :root {
+  --notice-height: 32px;
   --bg-primary: #0f0f13;
   --bg-secondary: #16161f;
   --bg-card: #1e1e2d;
@@ -102,9 +110,41 @@ img {
   flex-direction: column;
 }
 
+.test-notice {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  right: 0;
+  z-index: 999;
+  height: var(--notice-height);
+  background: #92400e;
+  color: #fef3c7;
+  text-align: center;
+  padding: 0 16px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.notice-link {
+  color: #fbbf24;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+.notice-link:hover {
+  color: #fef3c7;
+}
+
 .main-content {
   flex: 1;
-  padding-top: var(--header-height);
+  padding-top: calc(var(--header-height) + var(--notice-height));
+}
+
+.main-content.no-header {
+  padding-top: 0;
 }
 
 .container {
@@ -278,22 +318,28 @@ img {
   font-weight: 600;
 }
 
-.tag-ps5 {
+.tag-nexstation5 {
   background: rgba(0, 55, 145, 0.4);
   color: #4d90ff;
   border: 1px solid rgba(0, 55, 145, 0.6);
 }
 
-.tag-switch {
+.tag-flipdual {
   background: rgba(230, 0, 18, 0.2);
   color: #ff6060;
   border: 1px solid rgba(230, 0, 18, 0.4);
 }
 
-.tag-switch2 {
+.tag-flipdual2 {
   background: rgba(204, 0, 16, 0.2);
   color: #ff4040;
   border: 1px solid rgba(204, 0, 16, 0.4);
+}
+
+.tag-xvertex {
+  background: rgba(16, 124, 16, 0.2);
+  color: #4ade80;
+  border: 1px solid rgba(16, 124, 16, 0.4);
 }
 
 .tag-limited {
