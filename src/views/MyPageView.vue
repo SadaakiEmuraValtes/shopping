@@ -74,6 +74,32 @@
         </div>
       </div>
 
+      <!-- Favorite genres -->
+      <div id="favorite-genres-section" class="genre-section">
+        <div class="genre-section-header">
+          <h2 class="section-title">好きなゲームジャンル</h2>
+          <button v-if="!isEditingGenres" class="btn-edit-genre" @click="startEditGenres">編集</button>
+          <button v-else class="btn-save-genre" @click="saveGenres">保存</button>
+        </div>
+        <div v-if="!isEditingGenres">
+          <div v-if="store.favoriteGenres.length > 0" class="genre-tags">
+            <span v-for="g in store.favoriteGenres" :key="g" class="genre-tag">{{ g }}</span>
+          </div>
+          <p v-else class="genre-empty">まだジャンルが設定されていません</p>
+        </div>
+        <div v-else class="genre-checkboxes">
+          <label
+            v-for="genre in GENRES"
+            :key="genre"
+            class="genre-check"
+            :class="{ active: editGenres.includes(genre) }"
+          >
+            <input type="checkbox" :value="genre" v-model="editGenres" />
+            {{ genre }}
+          </label>
+        </div>
+      </div>
+
       <!-- Account actions -->
       <div class="account-actions">
         <h2 class="section-title">アカウント</h2>
@@ -87,9 +113,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { store, logout, cartCount, formatPrice, getUserDefaultCard } from '../store/index.js'
+import { store, logout, cartCount, formatPrice, getUserDefaultCard, updateFavoriteGenres } from '../store/index.js'
+import { GENRES } from '../data/genres.js'
 
 const router = useRouter()
 
@@ -106,11 +133,25 @@ const recentOrders = computed(() => {
 
 const defaultCard = computed(() => getUserDefaultCard())
 
+const isEditingGenres = ref(false)
+const editGenres = ref([])
+
+function startEditGenres() {
+  editGenres.value = [...store.favoriteGenres]
+  isEditingGenres.value = true
+}
+
+function saveGenres() {
+  updateFavoriteGenres(editGenres.value)
+  isEditingGenres.value = false
+}
+
 function formatDate(iso) {
   return new Date(iso).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })
 }
 
 function handleLogout() {
+  if (!window.confirm('ログアウトしますか？')) return
   logout()
   router.push('/')
 }
@@ -314,6 +355,101 @@ function handleLogout() {
 
 .card-limit-low {
   color: #fbbf24;
+}
+
+/* Favorite genres */
+.genre-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 20px;
+}
+
+.genre-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.genre-section-header .section-title {
+  margin-bottom: 0;
+}
+
+.btn-edit-genre, .btn-save-genre {
+  font-size: 13px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  transition: var(--transition);
+}
+
+.btn-save-genre {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-edit-genre:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.genre-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.genre-tag {
+  padding: 4px 12px;
+  background: rgba(108, 99, 255, 0.15);
+  border: 1px solid var(--accent);
+  border-radius: 100px;
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.genre-empty {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.genre-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.genre-check {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.genre-check input[type="checkbox"] {
+  display: none;
+}
+
+.genre-check:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.genre-check.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
 }
 
 /* Actions */

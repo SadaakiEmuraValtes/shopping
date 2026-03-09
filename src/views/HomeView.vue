@@ -34,6 +34,43 @@
       </div>
     </section>
 
+    <!-- Carousel Banner -->
+    <div class="carousel-section">
+      <div class="carousel-wrapper">
+        <button class="carousel-arrow carousel-prev" @click="prevSlide" aria-label="前へ">&#9664;</button>
+        <div class="carousel-track">
+          <a
+            v-for="(b, i) in carouselBanners"
+            :key="b.id"
+            :href="b.url"
+            target="_blank"
+            rel="noopener"
+            class="carousel-slide"
+            :class="{ active: i === carouselIndex }"
+            :style="{ background: b.gradient }"
+          >
+            <span class="carousel-icon">{{ b.icon }}</span>
+            <div class="carousel-text">
+              <div class="carousel-title">{{ b.title }}</div>
+              <div class="carousel-sub">{{ b.sub }}</div>
+            </div>
+            <span v-if="b.badge" class="carousel-badge">{{ b.badge }}</span>
+          </a>
+        </div>
+        <button class="carousel-arrow carousel-next" @click="nextSlide" aria-label="次へ">&#9654;</button>
+      </div>
+      <div class="carousel-dots">
+        <button
+          v-for="(_, i) in carouselBanners"
+          :key="i"
+          class="carousel-dot"
+          :class="{ active: i === carouselIndex }"
+          @click="goToSlide(i)"
+          :aria-label="`スライド${i + 1}`"
+        ></button>
+      </div>
+    </div>
+
     <!-- Body: main content + ad sidebar -->
     <div class="home-body container">
       <!-- Main -->
@@ -45,13 +82,42 @@
             :key="filter.value"
             :id="`filter-${filter.value}`"
             class="filter-btn"
-            :class="{ active: activeFilter === filter.value }"
-            @click="setFilter(filter.value)"
+            :class="{ active: filter.value === 'all' ? isAllActive : activeFilters.has(filter.value) }"
+            @click="toggleFilter(filter.value)"
             :disabled="isFilterLoading"
           >
             {{ filter.label }}
           </button>
           <span id="result-count" class="result-count">{{ filteredProducts.length }}件</span>
+        </div>
+
+        <!-- Genre filter bar -->
+        <div id="genre-filter-bar" class="genre-filter-bar">
+          <span class="filter-group-label">ジャンル：</span>
+          <button
+            id="genre-filter-all"
+            class="filter-btn filter-btn-sm"
+            :class="{ active: isGenreAllActive }"
+            @click="toggleGenre('all')"
+            :disabled="isFilterLoading"
+          >すべて</button>
+          <button
+            v-if="store.currentUser && store.favoriteGenres.length > 0"
+            id="genre-filter-favorites"
+            class="filter-btn filter-btn-sm filter-btn-favorite"
+            :class="{ active: isFavoriteGenreActive }"
+            @click="applyFavoriteGenres"
+            :disabled="isFilterLoading"
+          >♥ 好きなジャンル</button>
+          <button
+            v-for="genre in GENRES"
+            :key="genre"
+            :id="`genre-filter-${genre}`"
+            class="filter-btn filter-btn-sm"
+            :class="{ active: activeGenres.has(genre) }"
+            @click="toggleGenre(genre)"
+            :disabled="isFilterLoading"
+          >{{ genre }}</button>
         </div>
 
         <!-- Sort bar -->
@@ -132,8 +198,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { store, getStock } from '../store/index.js'
+import { GENRES } from '../data/genres.js'
 import { reviewsData } from '../data/reviews.js'
 import ProductCard from '../components/ProductCard.vue'
 import LoadingOverlay from '../components/LoadingOverlay.vue'
@@ -142,7 +209,15 @@ const PAGE_SIZE = 12
 
 const searchQuery = ref('')
 const activeQuery = ref('')
-const activeFilter = ref('all')
+const activeFilters = ref(new Set())
+const isAllActive = computed(() => activeFilters.value.size === 0)
+const activeGenres = ref(new Set())
+const isGenreAllActive = computed(() => activeGenres.value.size === 0)
+const isFavoriteGenreActive = computed(() => {
+  const favs = store.favoriteGenres
+  if (favs.length === 0 || activeGenres.value.size !== favs.length) return false
+  return favs.every(g => activeGenres.value.has(g))
+})
 const sortOrder = ref('default')
 const currentPage = ref(1)
 const isSearchLoading = ref(false)
@@ -150,6 +225,39 @@ const isFilterLoading = ref(false)
 const isScrollLoading = ref(false)
 const sentinel = ref(null)
 const currentAd = ref(null)
+const carouselIndex = ref(0)
+let carouselTimer = null
+
+const carouselBanners = [
+  { id: 1, icon: '🎮', title: 'PlayStation Store 大セール開催中！', sub: '対象タイトル最大80%OFF・今週末まで', badge: 'SALE', gradient: 'linear-gradient(120deg, #00439c 0%, #003087 100%)', url: 'https://store.playstation.com/ja-jp/' },
+  { id: 2, icon: '🍄', title: 'Nintendo eShop 新作続々登場！', sub: '人気シリーズ最新作を今すぐチェック', badge: 'NEW', gradient: 'linear-gradient(120deg, #e60012 0%, #c0000f 100%)', url: 'https://www.nintendo.com/jp/software/switch/' },
+  { id: 3, icon: '🟢', title: 'Xbox Game Pass Ultimate', sub: '数百タイトルが月額定額で遊び放題', badge: 'おすすめ', gradient: 'linear-gradient(120deg, #107c10 0%, #0a5a0a 100%)', url: 'https://www.xbox.com/ja-JP/xbox-game-pass' },
+  { id: 4, icon: '🔥', title: 'Steam 週末セール開催！', sub: 'インディー・AAA問わず大幅値引き中', badge: '週末限定', gradient: 'linear-gradient(120deg, #1b2838 0%, #2a475e 100%)', url: 'https://store.steampowered.com/specials?l=japanese' },
+  { id: 5, icon: '🏆', title: 'Amazon ゲームランキング更新', sub: '今週の売れ筋ソフト・ハードTOP20', badge: 'ランキング', gradient: 'linear-gradient(120deg, #ff9900 0%, #e47911 100%)', url: 'https://www.amazon.co.jp/s?i=videogames&rh=n%3A637394' },
+  { id: 6, icon: '💎', title: '楽天 スーパーポイントアッププログラム', sub: 'ゲーム購入でポイント最大10倍還元', badge: 'ポイントUP', gradient: 'linear-gradient(120deg, #bf0000 0%, #8b0000 100%)', url: 'https://item.rakuten.co.jp/category/101213/' },
+]
+
+function nextSlide() {
+  carouselIndex.value = (carouselIndex.value + 1) % carouselBanners.length
+  resetTimer()
+}
+
+function prevSlide() {
+  carouselIndex.value = (carouselIndex.value - 1 + carouselBanners.length) % carouselBanners.length
+  resetTimer()
+}
+
+function goToSlide(i) {
+  carouselIndex.value = i
+  resetTimer()
+}
+
+function resetTimer() {
+  clearInterval(carouselTimer)
+  carouselTimer = setInterval(() => {
+    carouselIndex.value = (carouselIndex.value + 1) % carouselBanners.length
+  }, 3000)
+}
 
 const allAds = [
   { id: 1, icon: '🎮', title: 'ゲーム大特価セール！', sub: '今週限り最大50%OFF', color: '#6c63ff', url: 'https://store.playstation.com/ja-jp/' },
@@ -168,7 +276,7 @@ const filters = [
   { value: 'ハードウェア', label: 'ハードウェア' },
   { value: 'ゲームソフト', label: 'ゲームソフト' },
   { value: 'limited', label: '限定品' },
-  { value: 'outofstock', label: '在庫切れ' },
+  { value: 'excludeOutOfStock', label: '在庫切れを除く' },
 ]
 
 const sortOptions = [
@@ -190,16 +298,28 @@ const filteredProducts = computed(() => {
     )
   }
 
-  if (activeFilter.value !== 'all') {
-    if (activeFilter.value === 'limited') {
-      list = list.filter(p => p.limited)
-    } else if (activeFilter.value === 'outofstock') {
-      list = list.filter(p => getStock(p.id) === 0)
-    } else if (['NexStation5', 'FlipDual', 'FlipDual2', 'XVertex'].includes(activeFilter.value)) {
-      list = list.filter(p => p.platform === activeFilter.value)
-    } else {
-      list = list.filter(p => p.category === activeFilter.value)
-    }
+  // 在庫切れを除く（AND 条件）
+  if (activeFilters.value.has('excludeOutOfStock')) {
+    list = list.filter(p => getStock(p.id) !== 0)
+  }
+
+  // プラットフォーム・カテゴリ・限定品フィルター（OR 条件）
+  const mainFilters = [...activeFilters.value].filter(f => f !== 'excludeOutOfStock')
+  if (mainFilters.length > 0) {
+    list = list.filter(p =>
+      mainFilters.some(f => {
+        if (f === 'limited') return p.limited
+        if (['NexStation5', 'FlipDual', 'FlipDual2', 'XVertex'].includes(f)) return p.platform === f
+        return p.category === f
+      })
+    )
+  }
+
+  // ジャンルフィルター（OR 条件）
+  if (activeGenres.value.size > 0) {
+    list = list.filter(p =>
+      p.genres && p.genres.some(g => activeGenres.value.has(g))
+    )
   }
 
   return list
@@ -248,22 +368,77 @@ function clearSearch() {
   currentPage.value = 1
 }
 
-async function setFilter(value) {
-  if (activeFilter.value === value) return
+async function toggleFilter(value) {
+  if (value === 'all') {
+    if (isAllActive.value) return
+    isFilterLoading.value = true
+    await new Promise(r => setTimeout(r, 1000 + Math.random() * 1000))
+    activeFilters.value = new Set()
+    currentPage.value = 1
+    isFilterLoading.value = false
+    return
+  }
   isFilterLoading.value = true
   await new Promise(r => setTimeout(r, 1000 + Math.random() * 1000))
-  activeFilter.value = value
+  const next = new Set(activeFilters.value)
+  if (next.has(value)) {
+    next.delete(value)
+  } else {
+    next.add(value)
+  }
+  activeFilters.value = next
   currentPage.value = 1
   isFilterLoading.value = false
 }
 
-watch(activeFilter, () => {
+async function applyFavoriteGenres() {
+  if (isFavoriteGenreActive.value) {
+    // 既に適用中なら解除
+    isFilterLoading.value = true
+    await new Promise(r => setTimeout(r, 800 + Math.random() * 600))
+    activeGenres.value = new Set()
+    currentPage.value = 1
+    isFilterLoading.value = false
+    return
+  }
+  isFilterLoading.value = true
+  await new Promise(r => setTimeout(r, 800 + Math.random() * 600))
+  activeGenres.value = new Set(store.favoriteGenres)
   currentPage.value = 1
-})
+  isFilterLoading.value = false
+}
+
+async function toggleGenre(value) {
+  if (value === 'all') {
+    if (isGenreAllActive.value) return
+    isFilterLoading.value = true
+    await new Promise(r => setTimeout(r, 800 + Math.random() * 600))
+    activeGenres.value = new Set()
+    currentPage.value = 1
+    isFilterLoading.value = false
+    return
+  }
+  isFilterLoading.value = true
+  await new Promise(r => setTimeout(r, 800 + Math.random() * 600))
+  const next = new Set(activeGenres.value)
+  if (next.has(value)) {
+    next.delete(value)
+  } else {
+    next.add(value)
+  }
+  activeGenres.value = next
+  currentPage.value = 1
+  isFilterLoading.value = false
+}
 
 let observer = null
 
 onMounted(() => {
+  // Carousel auto-slide
+  carouselTimer = setInterval(() => {
+    carouselIndex.value = (carouselIndex.value + 1) % carouselBanners.length
+  }, 3000)
+
   // Pick one random ad
   currentAd.value = allAds[Math.floor(Math.random() * allAds.length)]
 
@@ -285,6 +460,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (observer) observer.disconnect()
+  clearInterval(carouselTimer)
 })
 </script>
 
@@ -371,6 +547,133 @@ onUnmounted(() => {
 }
 
 .search-clear:hover { border-color: var(--danger); color: var(--danger); }
+
+/* Carousel */
+.carousel-section {
+  background: #0a0a0f;
+  padding: 0;
+  user-select: none;
+}
+
+.carousel-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 113px;
+}
+
+.carousel-track {
+  flex: 1;
+  position: relative;
+  height: 100%;
+  overflow: hidden;
+}
+
+.carousel-slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 28px;
+  text-decoration: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.carousel-slide.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.carousel-icon {
+  font-size: 40px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));
+}
+
+.carousel-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.carousel-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.3;
+  margin-bottom: 4px;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+.carousel-sub {
+  font-size: 13px;
+  color: rgba(255,255,255,0.8);
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+.carousel-badge {
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.95);
+  color: #111;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 100px;
+  letter-spacing: 0.04em;
+}
+
+.carousel-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 32px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.35);
+  color: rgba(255,255,255,0.85);
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.carousel-arrow:hover {
+  background: rgba(0,0,0,0.6);
+  color: #fff;
+}
+
+.carousel-prev { left: 0; }
+.carousel-next { right: 0; }
+
+.carousel-dots {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 0;
+  background: #0a0a0f;
+}
+
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255,255,255,0.3);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+  padding: 0;
+}
+
+.carousel-dot.active {
+  background: #fff;
+  transform: scale(1.25);
+}
 
 /* Home body layout */
 .home-body {
@@ -569,6 +872,53 @@ onUnmounted(() => {
   font-size: 13px;
   border-top: 1px solid var(--border);
   margin-top: 12px;
+}
+
+.genre-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.genre-filter-bar::-webkit-scrollbar { display: none; }
+
+.filter-group-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.filter-btn-sm {
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 500;
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  transition: var(--transition);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.filter-btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+.filter-btn-sm.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.filter-btn-favorite {
+  border-color: #e05a8a;
+  color: #e05a8a;
+}
+.filter-btn-favorite:hover:not(:disabled) {
+  background: #e05a8a;
+  color: #fff;
+  border-color: #e05a8a;
+}
+.filter-btn-favorite.active {
+  background: #e05a8a;
+  color: #fff;
+  border-color: #e05a8a;
 }
 
 @media (max-width: 1100px) {
