@@ -12,6 +12,7 @@ export const productsData = [
     emoji: '🎮',
     description: '次世代ゲーム体験を実現するNexStation V Digital Edition。超高速SSD、3Dオーディオ、DualEdgeワイヤレスコントローラーで革新的なゲームプレイを体験。ディスクドライブなしのデジタル専用モデル。',
     rating: 4.9,
+    genres: [],
   },
   {
     id: 2,
@@ -25,6 +26,7 @@ export const productsData = [
     emoji: '🕹️',
     description: '最新携帯・据置両用ゲーム機。改良されたサイドコン、大型HDディスプレイ、強化されたプロセッサで、自宅でも外出先でも最高のゲーム体験を。',
     rating: 4.8,
+    genres: [],
   },
   // === PS5 ゲームソフト ===
   {
@@ -39,6 +41,7 @@ export const productsData = [
     emoji: '⚔️',
     description: '勇者と息子が北欧神話の終末に立ち向かう壮大なアクションRPG。圧巻のビジュアルと感動的なストーリーが融合した傑作。',
     rating: 4.9,
+    genres: ['RPG', 'アクション'],
   },
   {
     id: 4,
@@ -52,6 +55,7 @@ export const productsData = [
     emoji: '🕷️',
     description: '二人のヒーローが協力してネオシティを守る超爽快アクション。次世代機専用機能を活かした圧倒的な体験。',
     rating: 4.8,
+    genres: ['アクション', 'アドベンチャー'],
   },
   {
     id: 5,
@@ -65,6 +69,7 @@ export const productsData = [
     emoji: '🏎️',
     description: '究極のリアルドライビングシミュレーター。500台以上の車種と90以上のコースを収録。アダプティブトリガーでリアルな走行感を体験。',
     rating: 4.6,
+    genres: ['レーシング', 'シミュレーション'],
   },
   {
     id: 6,
@@ -78,6 +83,7 @@ export const productsData = [
     emoji: '🔮',
     description: '壮大な世界で繰り広げられるドラマティックなアクションRPG。召喚獣バトルが圧倒的なスケールで展開する、シリーズ最新作。',
     rating: 4.5,
+    genres: ['RPG', 'アクション'],
   },
   {
     id: 7,
@@ -91,6 +97,7 @@ export const productsData = [
     emoji: '💀',
     description: 'NexStation Vローンチタイトルとして蘇った伝説のソウルライク。美麗なグラフィックで難関の世界に挑め。',
     rating: 4.7,
+    genres: ['RPG', 'アクション'],
   },
   {
     id: 8,
@@ -104,6 +111,7 @@ export const productsData = [
     emoji: '🔄',
     description: 'ループする悪夢の惑星を探索するローグライクサードパーソンシューター。次世代機の機能を最大限に活用した独特の体験。',
     rating: 4.5,
+    genres: ['アクション', 'シューター（FPS/TPS）'],
   },
   {
     id: 9,
@@ -117,6 +125,7 @@ export const productsData = [
     emoji: '🔧',
     description: '次元を超えた冒険を繰り広げるアクションプラットフォーマー。次世代機専用機能をフル活用した圧巻のビジュアルと遊び心。',
     rating: 4.8,
+    genres: ['アクション', 'アドベンチャー'],
   },
   {
     id: 10,
@@ -130,6 +139,7 @@ export const productsData = [
     emoji: '🏹',
     description: '女戦士が西の禁断の地を探索するオープンワールドアクションRPG。壮大な自然と機械生命体が織りなす広大な世界。',
     rating: 4.7,
+    genres: ['RPG', 'アクション', 'アドベンチャー'],
   },
   {
     id: 11,
@@ -143,6 +153,7 @@ export const productsData = [
     emoji: '🏯',
     description: '対馬を舞台にしたオープンワールドアクション決定版。壱岐島コンテンツも追加。美しい和の世界を体験せよ。',
     rating: 4.9,
+    genres: ['アクション', 'アドベンチャー'],
   },
   {
     id: 12,
@@ -156,6 +167,7 @@ export const productsData = [
     emoji: '🌿',
     description: '感動的なポストアポカリプスサバイバル。次世代機向けに完全リメイクされた最高傑作。主人公とパートナーの旅が再び始まる。',
     rating: 4.8,
+    genres: ['アドベンチャー', 'ホラー'],
   },
   {
     id: 13,
@@ -169,6 +181,7 @@ export const productsData = [
     emoji: '🗡️',
     description: '女戦士が地球を取り戻すために戦うアクションゲーム。スタイリッシュな戦闘と美麗なグラフィックが融合した意欲作。',
     rating: 4.6,
+    genres: ['アクション'],
   },
   {
     id: 14,
@@ -182,6 +195,7 @@ export const productsData = [
     emoji: '💥',
     description: '民主主義のために戦う最大4人協力のサードパーソンシューター。爽快な戦闘と豊富な兵器・ストラタジェムが魅力。',
     rating: 4.7,
+    genres: ['シューター（FPS/TPS）', 'マルチプレイヤー'],
   },
   {
     id: 15,
@@ -195,6 +209,7 @@ export const productsData = [
     emoji: '💍',
     description: '伝説の作家とゲームデザイナーが贈る壮大なオープンワールドソウルライク。褪せ人よ、狭間の地へ。',
     rating: 5.0,
+    genres: ['RPG', 'アクション'],
   },
   {
     id: 16,
@@ -208,6 +223,7 @@ export const productsData = [
     emoji: '🧟',
     description: '伝説的なホラーアクションが現代に蘇る。主人公の死闘をよりリアルに、より恐ろしく。原作の面白さを現代で体験せよ。',
     rating: 4.8,
+    genres: ['ホラー', 'アクション'],
   },
   {
     id: 17,
@@ -221,6 +237,7 @@ export const productsData = [
     emoji: '🥊',
     description: 'シリーズ最新作。豊富なゲームモードと革新的なドライブシステムで格闘ゲームの頂点へ。ワールドツアーモードも充実。',
     rating: 4.7,
+    genres: ['格闘', 'マルチプレイヤー'],
   },
   {
     id: 18,
@@ -234,6 +251,7 @@ export const productsData = [
     emoji: '🧙',
     description: 'D&D世界観をベースにした究極のRPG。選択と結果が生み出す圧倒的なナラティブ体験。ゲームオブザイヤー受賞作品。',
     rating: 5.0,
+    genres: ['RPG', 'シミュレーション'],
   },
   {
     id: 19,
@@ -247,6 +265,7 @@ export const productsData = [
     emoji: '🌆',
     description: '近未来都市を舞台にしたオープンワールドRPG。大型拡張コンテンツを含む究極版。傭兵として伝説を作れ。',
     rating: 4.6,
+    genres: ['RPG', 'アクション'],
   },
   {
     id: 20,
@@ -260,6 +279,7 @@ export const productsData = [
     emoji: '🤖',
     description: '硬派なメカアクション。高速バトルで謎の惑星の真相に迫れ。カスタマイズの自由度も高い。',
     rating: 4.6,
+    genres: ['アクション', 'シミュレーション'],
   },
   {
     id: 21,
@@ -273,6 +293,7 @@ export const productsData = [
     emoji: '🪆',
     description: '人形の世界観をベースにしたダークファンタジーソウルライク。嘘をつくことが独特のシステムに絡む傑作。',
     rating: 4.5,
+    genres: ['RPG', 'アクション'],
   },
   {
     id: 22,
@@ -286,6 +307,7 @@ export const productsData = [
     emoji: '🧹',
     description: '魔法学校の世界を舞台にした1800年代のオープンワールドRPG。学校を自由に探索し、魔法使いとして成長せよ。',
     rating: 4.6,
+    genres: ['RPG', 'アドベンチャー'],
   },
   {
     id: 23,
@@ -299,6 +321,7 @@ export const productsData = [
     emoji: '🌍',
     description: 'EF VII三部作の第二弾。主人公たちの旅が広大なオープンワールドで展開。感動と驚きに満ちた圧倒的なRPG体験。初回限定版。',
     rating: 4.9,
+    genres: ['RPG', 'アクション'],
   },
   {
     id: 24,
@@ -312,6 +335,7 @@ export const productsData = [
     emoji: '🎮',
     description: '革新的な触覚フィードバックとアダプティブトリガーを搭載したNexStation V純正コントローラー。ゲームの体験を劇的に変える最新技術。',
     rating: 4.8,
+    genres: [],
   },
   {
     id: 25,
@@ -325,6 +349,7 @@ export const productsData = [
     emoji: '🔫',
     description: '人気FPS最新作。強化されたマルチプレイヤーとゾンビモード。スリリングなキャンペーンも収録した人気シリーズ最新章。',
     rating: 4.4,
+    genres: ['シューター（FPS/TPS）', 'マルチプレイヤー'],
   },
   {
     id: 26,
@@ -338,6 +363,7 @@ export const productsData = [
     emoji: '⚽',
     description: '最新モーションキャプチャ技術でよりリアルなプレイを実現したサッカーゲーム。世界の舞台で戦え。',
     rating: 4.4,
+    genres: ['スポーツ', 'マルチプレイヤー'],
   },
   // === Switch / Switch 2 ゲームソフト ===
   {
@@ -352,6 +378,7 @@ export const productsData = [
     emoji: '🗡️',
     description: '前作の続編。空島・地底を含む広大な世界で、ウルトラハンドなど革新的な能力でクリエイティブな冒険を。',
     rating: 5.0,
+    genres: ['アドベンチャー', 'アクション'],
   },
   {
     id: 28,
@@ -365,6 +392,7 @@ export const productsData = [
     emoji: '🍄',
     description: '主人公が「ワンダーフラワー」で変身する横スクロールアクション。想像を超えるワクワクが詰まった傑作。',
     rating: 4.9,
+    genres: ['アクション', 'アドベンチャー'],
   },
   {
     id: 29,
@@ -378,6 +406,7 @@ export const productsData = [
     emoji: '🌱',
     description: '愛らしいクリーチャーと共に謎の惑星を探索。新要素と夜のミッションが冒険に新たな深みをもたらす。',
     rating: 4.8,
+    genres: ['アドベンチャー'],
   },
   {
     id: 30,
@@ -391,6 +420,7 @@ export const productsData = [
     emoji: '🚀',
     description: '往年の名作がFlipDual向けにHDリマスター。賞金稼ぎの孤独な宇宙探索を最新グラフィックで。',
     rating: 4.9,
+    genres: ['アドベンチャー', 'アクション'],
   },
   {
     id: 31,
@@ -404,6 +434,7 @@ export const productsData = [
     emoji: '🏰',
     description: '歴代英雄たちとエンブレムシステムで協力して戦う戦略RPG。多彩な戦術と感動のストーリー。',
     rating: 4.6,
+    genres: ['シミュレーション', 'RPG'],
   },
   {
     id: 32,
@@ -417,6 +448,7 @@ export const productsData = [
     emoji: '🦑',
     description: 'イカ・タコの色塗りアクション最新作。新ステージ・ブキ・サーモンランで遊び尽くせ。バンカラ街で戦いを繰り広げよ。',
     rating: 4.7,
+    genres: ['アクション', 'シューター（FPS/TPS）', 'マルチプレイヤー'],
   },
   {
     id: 33,
@@ -430,6 +462,7 @@ export const productsData = [
     emoji: '⚔️',
     description: '二つの世界が交差する壮大なJRPG。複雑な感情が絡み合うドラマティックなストーリーと深いバトルシステム。',
     rating: 4.8,
+    genres: ['RPG'],
   },
   {
     id: 34,
@@ -443,6 +476,7 @@ export const productsData = [
     emoji: '🔴',
     description: 'オープンワールドで展開する最新クリーチャー育成RPG。広大なパルデア地方で新たなクリーチャーを捕まえよう。',
     rating: 4.5,
+    genres: ['RPG'],
   },
   {
     id: 35,
@@ -456,6 +490,7 @@ export const productsData = [
     emoji: '🟣',
     description: 'スカーレットとは異なる伝説クリーチャーが登場。ミライドンと共にパルデア地方を旅するオープンワールドRPG。',
     rating: 4.5,
+    genres: ['RPG'],
   },
   {
     id: 36,
@@ -469,6 +504,7 @@ export const productsData = [
     emoji: '🏁',
     description: '追加コース48コースを含む史上最強版レーシングゲーム。オンライン対戦も充実で何年でも遊べる定番タイトル。',
     rating: 4.9,
+    genres: ['レーシング', 'マルチプレイヤー'],
   },
   {
     id: 37,
@@ -482,6 +518,7 @@ export const productsData = [
     emoji: '💥',
     description: '歴代最多80人以上のファイターが参戦する究極の対戦アクション。誰でも楽しめるパーティーゲームの王様。',
     rating: 4.9,
+    genres: ['格闘', 'アクション', 'マルチプレイヤー'],
   },
   {
     id: 38,
@@ -495,6 +532,7 @@ export const productsData = [
     emoji: '🦖',
     description: 'モンスタースレイヤーライズの大型拡張コンテンツ。新フィールド・新モンスター・傑作スキルで狩猟を極めろ。',
     rating: 4.7,
+    genres: ['アクション', 'RPG'],
   },
   {
     id: 39,
@@ -508,6 +546,7 @@ export const productsData = [
     emoji: '💋',
     description: '伝説の魔女が帰ってきた。新要素「マスキュレード・ウェポン」でさらに派手なアクションを体験せよ。',
     rating: 4.5,
+    genres: ['アクション'],
   },
   {
     id: 40,
@@ -521,6 +560,7 @@ export const productsData = [
     emoji: '👻',
     description: '緑色のプランマーがお化けホテルに挑む大人気アクションアドベンチャー。コープモードでの2人協力プレイも可能。',
     rating: 4.8,
+    genres: ['アドベンチャー', 'アクション'],
   },
   {
     id: 41,
@@ -534,6 +574,7 @@ export const productsData = [
     emoji: '💪',
     description: 'Ringコンを使った本格フィットネスRPG。楽しみながら体を動かして健康になれる、家族みんなで遊べる一作。',
     rating: 4.8,
+    genres: ['フィットネス', 'RPG'],
   },
   {
     id: 42,
@@ -547,6 +588,7 @@ export const productsData = [
     emoji: '🌴',
     description: '無人島でのスローライフシミュレーション。マイペースに島を発展させ、可愛い住民と交流しよう。世界中で大ヒット作品。',
     rating: 4.8,
+    genres: ['シミュレーション', 'アドベンチャー'],
   },
   {
     id: 43,
@@ -560,6 +602,7 @@ export const productsData = [
     emoji: '🌟',
     description: '丸い主人公の名作がFlipDual向けに新機能を追加してリメイク。4人協力プレイで楽しめる、誰でも遊べるアクションゲーム。',
     rating: 4.7,
+    genres: ['アクション', 'アドベンチャー'],
   },
   {
     id: 44,
@@ -573,6 +616,7 @@ export const productsData = [
     emoji: '🕹️',
     description: 'FlipDual 2専用の高精度Proコントローラー。より快適なゲームプレイのために設計された純正アクセサリ。発売日限定生産品。',
     rating: 4.7,
+    genres: [],
   },
   {
     id: 45,
@@ -586,6 +630,7 @@ export const productsData = [
     emoji: '🤿',
     description: '昼は海に潜り、夜は寿司レストランを経営するユニークなアドベンチャー。小粒だが密度の高い傑作インディーゲーム。',
     rating: 4.8,
+    genres: ['アドベンチャー', 'インディー'],
   },
   {
     id: 46,
@@ -599,6 +644,7 @@ export const productsData = [
     emoji: '🦋',
     description: '大人気ダークナイトの待望の続編。新たな主人公を操り、神秘的な虫の王国を探索するメトロイドヴァニア。初回限定生産。',
     rating: 4.9,
+    genres: ['アクション', 'アドベンチャー', 'インディー'],
   },
   {
     id: 47,
@@ -612,6 +658,7 @@ export const productsData = [
     emoji: '🌍',
     description: 'FlipDual 2専用の新エルモカート。広大なオープンワールドを舞台にした革新的なレーシングゲーム。FlipDual 2ローンチタイトル限定版。',
     rating: 4.9,
+    genres: ['レーシング', 'マルチプレイヤー'],
   },
   {
     id: 48,
@@ -625,6 +672,7 @@ export const productsData = [
     emoji: '🦍',
     description: 'FlipDual 2専用の大型類人猿アクション新作。ダイナミックな3Dアクションで地面を掘り進む斬新なゲームプレイ。FlipDual 2ローンチタイトル限定版。',
     rating: 4.8,
+    genres: ['アクション', 'アドベンチャー'],
   },
   {
     id: 49,
@@ -638,6 +686,7 @@ export const productsData = [
     emoji: '👑',
     description: 'お姫様が主人公の新作レジェンドシリーズ。エコーシステムで物体や生命体をコピーして謎を解く、新発想のゲーム。',
     rating: 4.7,
+    genres: ['アドベンチャー', 'アクション'],
   },
   {
     id: 50,
@@ -651,6 +700,7 @@ export const productsData = [
     emoji: '⛏️',
     description: '世界で最も売れたゲーム。ブロックで作り、探索し、サバイバルする自由なサンドボックスゲーム。老若男女楽しめる定番作品。',
     rating: 4.8,
+    genres: ['サンドボックス', 'マルチプレイヤー'],
   },
   // === XVertex ゲームソフト・ハードウェア ===
   {
@@ -665,6 +715,7 @@ export const productsData = [
     emoji: '🟩',
     description: 'XVertex One Sは高性能クラウドゲーミング対応の次世代ゲーム機。4K/120fps対応、クロスプレイ完全対応。XVertexPassで数百タイトルが遊び放題。',
     rating: 4.6,
+    genres: [],
   },
   {
     id: 52,
@@ -678,6 +729,7 @@ export const productsData = [
     emoji: '🎯',
     description: '伝説のFPSシリーズ最新作。広大なオープンワールドと緻密なシューティングが融合。クロスプレイ対応で全プラットフォームのプレイヤーと対戦できる。',
     rating: 4.7,
+    genres: ['シューター（FPS/TPS）', 'マルチプレイヤー'],
   },
   {
     id: 53,
@@ -691,6 +743,7 @@ export const productsData = [
     emoji: '🏰',
     description: '巨大な要塞を舞台にした戦略アクションゲーム。最大16人のオンライン協力プレイに対応。XVertexクラウドで高品質なグラフィックを実現。',
     rating: 4.5,
+    genres: ['アクション', 'マルチプレイヤー'],
   },
   {
     id: 54,
@@ -704,5 +757,6 @@ export const productsData = [
     emoji: '🎮',
     description: 'XVertex純正の高精度ワイヤレスコントローラー。カスタマイズ可能なボタン、ハプティックフィードバック、最大40時間のバッテリー駆動。',
     rating: 4.6,
+    genres: [],
   },
 ]

@@ -5,6 +5,7 @@ export const defaultUsers = [
     email: 'tanaka@example.com',
     password: 'GamePass#2024',
     createdAt: '2024-01-15',
+    favoriteGenres: ['RPG', 'アクション', 'アドベンチャー'],
     defaultCard: { number: '**** **** **** 1234', expiry: '12/26', cardName: 'TARO TANAKA', last4: '1234', cardLimit: 10000 },
     presetFavorites: [1, 3, 15, 27, 36],
     presetOrders: [
@@ -336,6 +337,7 @@ export const defaultUsers = [
     email: 'yamada@example.com',
     password: 'Switch2@Love',
     createdAt: '2024-02-20',
+    favoriteGenres: ['マルチプレイヤー', 'シミュレーション', 'アドベンチャー'],
     defaultCard: { number: '**** **** **** 5678', expiry: '03/27', cardName: 'HANAKO YAMADA', last4: '5678', cardLimit: 50000 },
     presetFavorites: [2, 28, 42, 49, 44],
     presetOrders: [
@@ -358,6 +360,7 @@ export const defaultUsers = [
     email: 'sato@example.com',
     password: 'SoulsLiker99',
     createdAt: '2024-03-10',
+    favoriteGenres: ['RPG', 'アクション', 'ホラー'],
     defaultCard: { number: '**** **** **** 9012', expiry: '08/28', cardName: 'KEN SATO', last4: '9012', cardLimit: 50000 },
     presetFavorites: [15, 7, 21, 8, 46],
     presetOrders: [
@@ -390,6 +393,7 @@ export const defaultUsers = [
     email: 'suzuki@example.com',
     password: 'Kawaii_Gamer!',
     createdAt: '2024-04-05',
+    favoriteGenres: ['シミュレーション', 'アドベンチャー', 'フィットネス'],
     presetFavorites: [42, 29, 43, 32, 40],
     presetOrders: [
       {
@@ -411,6 +415,7 @@ export const defaultUsers = [
     email: 'takahashi@example.com',
     password: 'Pro_Gamer2025',
     createdAt: '2024-05-22',
+    favoriteGenres: ['アクション', 'ホラー', 'シューター（FPS/TPS）'],
     presetFavorites: [5, 16, 22, 4, 14],
     presetOrders: [
       {

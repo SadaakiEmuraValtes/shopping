@@ -10,6 +10,7 @@ function initUserProfiles() {
     profiles[user.id] = {
       favorites: [...(user.presetFavorites || [])],
       orders: user.presetOrders ? JSON.parse(JSON.stringify(user.presetOrders)) : [],
+      favoriteGenres: [...(user.favoriteGenres || [])],
     }
   }
   return profiles
@@ -36,6 +37,7 @@ function save(s) {
       stock: s.stock,
       lastOrderId: s.lastOrderId,
       userRatings: s.userRatings,
+      favoriteGenres: s.favoriteGenres,
     }))
   } catch { /* quota exceeded etc */ }
 }
@@ -53,6 +55,7 @@ export const store = reactive({
   stock: saved?.stock ?? Object.fromEntries(productsData.map(p => [p.id, p.stock])),
   lastOrderId: saved?.lastOrderId ?? null,
   userRatings: saved?.userRatings ?? {},
+  favoriteGenres: saved?.favoriteGenres ?? [],
 })
 
 watch(store, () => save(store), { deep: true, flush: 'sync' })
@@ -124,6 +127,7 @@ export function login(email, password) {
       store.userProfiles[store.currentUser.id] = {
         favorites: [...store.favorites],
         orders: [...store.orders],
+        favoriteGenres: [...store.favoriteGenres],
       }
     }
     store.currentUser = { id: user.id, name: user.name, email: user.email }
@@ -132,9 +136,11 @@ export function login(email, password) {
     if (profile) {
       store.favorites = [...profile.favorites]
       store.orders = [...profile.orders]
+      store.favoriteGenres = [...(profile.favoriteGenres || [])]
     } else {
       store.favorites = [...(user.presetFavorites || [])]
       store.orders = user.presetOrders ? JSON.parse(JSON.stringify(user.presetOrders)) : []
+      store.favoriteGenres = [...(user.favoriteGenres || [])]
     }
     return true
   }
@@ -146,15 +152,17 @@ export function logout() {
     store.userProfiles[store.currentUser.id] = {
       favorites: [...store.favorites],
       orders: [...store.orders],
+      favoriteGenres: [...store.favoriteGenres],
     }
   }
   store.currentUser = null
   store.favorites = []
   store.orders = []
   store.lastOrderId = null
+  store.favoriteGenres = []
 }
 
-export function register(name, email, password) {
+export function register(name, email, password, favoriteGenres = []) {
   if (store.users.find(u => u.email === email)) return false
   const newId = Math.max(0, ...store.users.map(u => u.id)) + 1
   const newUser = {
@@ -171,13 +179,23 @@ export function register(name, email, password) {
     store.userProfiles[store.currentUser.id] = {
       favorites: [...store.favorites],
       orders: [...store.orders],
+      favoriteGenres: [...store.favoriteGenres],
     }
   }
   store.currentUser = { id: newUser.id, name: newUser.name, email: newUser.email }
-  store.userProfiles[newUser.id] = { favorites: [], orders: [] }
+  store.userProfiles[newUser.id] = { favorites: [], orders: [], favoriteGenres: [] }
   store.favorites = []
   store.orders = []
+  store.favoriteGenres = []
   return true
+}
+
+export function updateFavoriteGenres(genres) {
+  store.favoriteGenres = [...genres]
+}
+
+export function getUserFavoriteGenres() {
+  return store.favoriteGenres
 }
 
 function generateOrderId() {

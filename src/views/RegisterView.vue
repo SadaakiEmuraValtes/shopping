@@ -64,6 +64,21 @@
           />
         </div>
 
+        <div class="form-group">
+          <label class="form-label">好きなゲームジャンル <span class="optional">（任意・複数選択可）</span></label>
+          <div id="genre-checkbox-group" class="genre-checkboxes">
+            <label
+              v-for="genre in GENRES"
+              :key="genre"
+              class="genre-check"
+              :class="{ active: selectedGenres.includes(genre) }"
+            >
+              <input type="checkbox" :value="genre" v-model="selectedGenres" />
+              {{ genre }}
+            </label>
+          </div>
+        </div>
+
         <p v-if="errorMsg" id="register-error" class="form-error" style="margin-bottom:12px">{{ errorMsg }}</p>
 
         <button id="btn-register" type="submit" class="btn btn-primary btn-lg btn-block" :disabled="loading">
@@ -83,7 +98,8 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { register } from '../store/index.js'
+import { register, updateFavoriteGenres } from '../store/index.js'
+import { GENRES } from '../data/genres.js'
 
 const router = useRouter()
 
@@ -94,6 +110,7 @@ const passwordConfirm = ref('')
 const showPass = ref(false)
 const errorMsg = ref('')
 const loading = ref(false)
+const selectedGenres = ref([])
 
 async function handleRegister() {
   errorMsg.value = ''
@@ -114,6 +131,7 @@ async function handleRegister() {
   loading.value = false
 
   if (ok) {
+    updateFavoriteGenres(selectedGenres.value)
     router.push('/')
   } else {
     errorMsg.value = 'このメールアドレスはすでに登録されています'
@@ -186,6 +204,49 @@ async function handleRegister() {
   font-weight: 600;
 }
 .auth-link:hover { text-decoration: underline; }
+
+.genre-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.genre-check {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.genre-check input[type="checkbox"] {
+  display: none;
+}
+
+.genre-check:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.genre-check.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+.optional {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+}
 
 @media (max-width: 480px) {
   .auth-card {
